@@ -1,0 +1,2 @@
+run python program "App/Python/python.exe"
+install package on stick python "App/Python/python.exe .\Scripts\pip install [package-name]"

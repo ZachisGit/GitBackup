@@ -1,0 +1,1 @@
+run "bin/git.exe clone ..." to use git

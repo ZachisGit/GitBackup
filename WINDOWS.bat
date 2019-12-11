@@ -1,0 +1,1 @@
+win\PortablePython-3.7.5x64\App\Python\python.exe _w_startup.py
