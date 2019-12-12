@@ -17,6 +17,9 @@ def _available_dir_name(base_name):
 	return dir_name+("_"+str(idx) if not idx is None else "")
 
 def _clear_empty_repos():
+	if not os.path.isdir(ARCHIVE_DIR):
+		return
+
 	list_dir = os.listdir(ARCHIVE_DIR)
 	for i in range(len(list_dir)):
 		if os.path.isdir(ARCHIVE_DIR+"/"+list_dir[i]) and len(os.listdir(ARCHIVE_DIR+"/"+list_dir[i])) == 0:
@@ -24,7 +27,11 @@ def _clear_empty_repos():
 			print ("_",ARCHIVE_DIR+"/"+list_dir[i])
 			os.rmdir(ARCHIVE_DIR+"/"+list_dir[i])
 
-
+def _git_folder(folder):
+	folder = folder.replace("\\","/")
+	if folder[1] == ":":
+		return "/"+folder[0]+folder[2:]
+	return folder
 
 def _run_command(command):
 	if DEBUG:
@@ -33,21 +40,28 @@ def _run_command(command):
 	subprocess.call([GIT_EXEC]+command)
 
 def _bc_clone(source,dest_dir):
+	#source = _git_folder(source)
+	#dest_dir = _git_folder(dest_dir)
 	return ["clone",source,dest_dir]
 
 def _bc_init(dest_dir):
+	#dest_dir = _git_folder(dest_dir)
 	return ["init",dest_dir]
 
 def _bc_add(repo,file="."):
+	#repo = _git_folder(repo)
 	return ["-C",repo,"add",file]
 
 def _bc_commit(repo,msg):
+	#repo = _git_folder(repo)
 	return ["-C",repo,"commit","-m",msg]
 
 def _bc_push(repo):
+	#repo = _git_folder(repo)
 	return ["-C",repo,"push"]
 
 def _bc_pull(repo):
+	#repo = _git_folder(repo)
 	return ["-C",repo,"pull"]
 
 

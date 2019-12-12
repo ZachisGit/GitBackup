@@ -1,0 +1,5 @@
+[AutoRun]
+OPEN=AUTO_UPDATE_WIN.bat
+ICON=icon.ico
+ACTION=GitBackup auto update
+LABEL=GitBackup

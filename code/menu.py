@@ -4,7 +4,7 @@ import os
 from glob import glob
 from .repo_config import RepoConfig
 
-def open():
+def open(auto_update=False):
 
 	def choice_not_valid_menu():
 		print ("Invalid choice!")
@@ -117,4 +117,8 @@ def open():
 			if valid == False:
 				choice_not_valid_menu()
 
-	main_menu()
+	if not auto_update:
+		main_menu()
+	else:
+		update_repos_menu()
+		input ("press any key...")
