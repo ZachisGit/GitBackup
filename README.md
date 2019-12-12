@@ -7,10 +7,10 @@ Portable multiplatform git based backupsystem. Works with local and remote repos
     -git command module done (gitlib)
     -MainMenu - structure and main_menu
     -Setup-Local
-
-# TODO
     -Setup-Url
     -Update-Local
     -Update-Remote
+
+# TODO
     -Thorough testing
     -Port to linux

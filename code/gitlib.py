@@ -2,6 +2,7 @@ from .base import *
 from .repo_config import RepoConfig
 import os
 import subprocess
+from datetime import datetime
 
 def _available_dir_name(base_name):
 	# No / or \ on the end of the path
@@ -14,6 +15,14 @@ def _available_dir_name(base_name):
 		else:
 			idx += 1
 	return dir_name+("_"+str(idx) if not idx is None else "")
+
+def _clear_empty_repos():
+	list_dir = os.listdir(ARCHIVE_DIR)
+	for i in range(len(list_dir)):
+		if os.path.isdir(ARCHIVE_DIR+"/"+list_dir[i]) and len(os.listdir(ARCHIVE_DIR+"/"+list_dir[i])) == 0:
+
+			print ("_",ARCHIVE_DIR+"/"+list_dir[i])
+			os.rmdir(ARCHIVE_DIR+"/"+list_dir[i])
 
 
 
@@ -42,7 +51,7 @@ def _bc_pull(repo):
 	return ["-C",repo,"pull"]
 
 
-
+### INITIALIZE REPOSITORIES ###
 def init_folder(folder):
 
 	folder = os.path.abspath(folder)
@@ -81,7 +90,77 @@ def init_folder(folder):
 	if rc is None:
 		return False
 
+	# Check if cloning worked
+	if not os.path.isdir(rc.archive_path) or len(os.listdir(rc.archive_path)) == 0:
+		return False
+
 	rc.save()
 
 	return True
 
+def init_url(url):
+
+	# Archive name from git link https://github.com/ZachisGit/[BlaBla].git
+	archive_name = url.split("/")[-1]
+	if archive_name.lower().endswith(".git"):
+		archive_name = archive_name[:-4]
+
+	if archive_name == "":
+		return False
+
+
+	# Clone Repo to local Archive
+	archive_path = _available_dir_name(ARCHIVE_DIR+"/"+archive_name)
+	repo_name = archive_path.split("/")[-1].split("\\")[-1]		# Repo name after availability check
+
+
+	if DEBUG:
+		print ("Archive-Path:",archive_path)
+		print ("Repo-Name:",repo_name)
+
+	if not os.path.isdir(ARCHIVE_DIR):
+		os.mkdir(ARCHIVE_DIR)
+
+	# git clone folder archive/
+	_run_command(_bc_clone(url,archive_path))
+
+	# ADD TO CONFIG
+	rc = RepoConfig(repo_path_url=url,repo_name=repo_name,is_local=False)
+
+	if rc is None:
+		return False
+
+	# Check if cloning worked
+	if not os.path.isdir(rc.archive_path) or len(os.listdir(rc.archive_path)) == 0:
+		return False
+
+	rc.save()
+
+	return True
+
+
+
+### UPDATE REPOSITORIES ###
+def update_folder(rc):
+
+	if rc is None or rc.initialized == False:
+		return False
+
+	# git -C LOCAL_FOLDER add .
+	# git -C LOCAL_FOLDER commit -m "Local backup yyyy:mm:dd hh:mm:ss"
+	# git -C ARCHIVE pull
+	_run_command(_bc_add(rc.repo_path))
+	_run_command(_bc_commit(rc.repo_path,"Local backup "+ datetime.now().strftime("%Y_%m_%d %H:%M:%S")))
+	_run_command(_bc_pull(rc.archive_path))
+
+	return True
+
+def update_url(rc):
+
+	if rc is None or rc.initialized == False:
+		return False
+
+	# git -C ARCHIVE pull
+	_run_command(_bc_pull(rc.archive_path))
+
+	return True
