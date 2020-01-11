@@ -3,8 +3,14 @@ from . import gitlib
 import os
 from glob import glob
 from .repo_config import RepoConfig
+import getpass
 
-def open(auto_update=False):
+def _ask_creds():
+	u = input ("Username: ")
+	p = getpass.getpass()
+	gitlib._set_creds(u,p)
+
+def open(auto_update=False,ask_creds=False):
 
 	def choice_not_valid_menu():
 		print ("Invalid choice!")
@@ -21,7 +27,6 @@ def open(auto_update=False):
 			print ("Init Folder - Success")
 		elif DEBUG:
 			print ("Init Folder - Failed")
-
 
 	def add_remote_repo_menu():
 		url = input ("Remote repository (github):~>>> ").replace("\"","")
@@ -50,12 +55,13 @@ def open(auto_update=False):
 				failed_rcs.append(config_files[i])
 			else:
 				# local and native to same pc
-				if _rc.is_local and RepoConfig.get_current_computer_id() == _rc.computer_id:
-					# check that repo still exists else place it in failed_rcs
-					if not os.path.isdir(_rc.repo_path):
-						failed_rcs.append(config_files[i])
-						continue
-					local_repos.append(_rc)
+				if _rc.is_local:
+					if RepoConfig.get_current_computer_id() == _rc.computer_id:
+						# check that repo still exists else place it in failed_rcs
+						if not os.path.isdir(_rc.repo_path):
+							failed_rcs.append(config_files[i])
+							continue
+						local_repos.append(_rc)
 				else:
 					remote_repos.append(_rc)
 
@@ -116,6 +122,8 @@ def open(auto_update=False):
 
 			if valid == False:
 				choice_not_valid_menu()
+	if ask_creds:
+		_ask_creds()
 
 	if not auto_update:
 		main_menu()

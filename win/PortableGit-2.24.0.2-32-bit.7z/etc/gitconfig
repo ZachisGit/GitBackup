@@ -17,4 +17,4 @@
 [rebase]
 	autosquash = true
 [credential]
-	helper = !\"C:/Users/DrPetrus/Documents/python/GitBackup/win/PortableGit-2.24.0.2-32-bit.7z/mingw32/libexec/git-core/git-credential-wincred.exe\"
+	helper = !\"../mingw32/libexec/git-core/git-credential-wincred.exe\"

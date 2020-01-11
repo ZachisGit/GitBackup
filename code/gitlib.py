@@ -2,7 +2,17 @@ from .base import *
 from .repo_config import RepoConfig
 import os
 import subprocess
+import shlex
 from datetime import datetime
+
+_git_user = ""
+_git_password = ""
+
+def _set_creds(u,p):
+	global _git_password, _git_user
+	_git_user = u
+	_git_password = p
+
 
 def _available_dir_name(base_name):
 	# No / or \ on the end of the path
@@ -33,11 +43,11 @@ def _git_folder(folder):
 		return "/"+folder[0]+folder[2:]
 	return folder
 
-def _run_command(command):
+def _run_command(command,cred_prefix=False):
 	if DEBUG:
 		print (" ".join([GIT_EXEC]+command))
 
-	subprocess.call([GIT_EXEC]+command)
+	subprocess.call([GIT_EXEC]+(_bc_cred_prefix() if cred_prefix else [])+command)
 
 def _bc_clone(source,dest_dir):
 	#source = _git_folder(source)
@@ -64,6 +74,9 @@ def _bc_pull(repo):
 	#repo = _git_folder(repo)
 	return ["-C",repo,"pull"]
 
+def _bc_cred_prefix():
+	global _git_user,_git_password
+	return shlex.split("-c credential.helper=\""+GIT_CRED_PROGRAM.replace("[GIT_USER]",_git_user).replace("[GIT_PASSWORD]",_git_password)+"\"")
 
 ### INITIALIZE REPOSITORIES ###
 def init_folder(folder):
@@ -136,7 +149,7 @@ def init_url(url):
 		os.mkdir(ARCHIVE_DIR)
 
 	# git clone folder archive/
-	_run_command(_bc_clone(url,archive_path))
+	_run_command(_bc_clone(url,archive_path),cred_prefix=True)
 
 	# ADD TO CONFIG
 	rc = RepoConfig(repo_path_url=url,repo_name=repo_name,is_local=False)
@@ -175,6 +188,6 @@ def update_url(rc):
 		return False
 
 	# git -C ARCHIVE pull
-	_run_command(_bc_pull(rc.archive_path))
+	_run_command(_bc_pull(rc.archive_path),cred_prefix=True)
 
 	return True

@@ -28,7 +28,7 @@ class RepoConfig(object):
 	def get_current_computer_id():
 		# Windows
 		if os.name == "nt":
-			current_machine_id = subprocess.check_output('wmic csproduct get uuid').decode().split('\n')[1].strip()
+			current_machine_id = subprocess.check_output([os.path.expandvars("%SystemRoot%")+"\\System32\\Wbem\\WMIC.exe", "csproduct","get","uuid"]).decode().split('\n')[1].strip()
 			return current_machine_id if not current_machine_id is None else "-1"
 		return "-1"
 
